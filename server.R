@@ -10,7 +10,6 @@ library(XML)
 library(quantmod)
 library(stringr)
 library(broom)
-
   
   function(input, output) {
     # NONReactive
@@ -77,7 +76,6 @@ my_data <- reactive({
            df_1['stock'] <- s
            assign(s, df_1) 
          }
-         
          
          # COMBINE ALL STOCK DATA 
          stockdatalist_1 <- cbind(mget(stocks_1))
