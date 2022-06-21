@@ -40,7 +40,6 @@ library(broom)
       webpage <- readLines(url)
       html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
       tableNodes <- getNodeSet(html, "//table")
-      
       readHTMLTable(tableNodes[[1]])
     })
    
