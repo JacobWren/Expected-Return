@@ -301,7 +301,6 @@ function(input, output) {
       avg_CMAD <- mean(my_data()$CMA)
       
       # FAIR RATE
-      
       Fair_Rate <- round(((rf + Coef_Mkt*(ExpectedRet-rf) + Coef_SMB*(avg_SMBD) + 
                              Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))), 2)
       
