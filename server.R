@@ -189,7 +189,7 @@ my_data <- reactive({
                FamaMonthly <- mutate_all(FamaMonthly, function(x) as.numeric(as.character(x)))
                 FamaMonthly
 
-      }else if(input$Frequency == "Daily" & input$Model == "3 factor model"){
+      } else if(input$Frequency == "Daily" & input$Model == "3 factor model"){
 
                          stocks_1 <- input$ticker
                          p <- ("d")
@@ -250,7 +250,7 @@ my_data <- reactive({
                   
                          Fama_3Factor_Daily <- mutate_all(Fama_3Factor_Daily, function(x) as.numeric(as.character(x)))
                   
-                }else{          
+                } else{          
                            stocks_1 <- input$ticker
                            p <- ("mo")
                            for (s in stocks_1) {
@@ -369,7 +369,7 @@ output$Rates <- renderPrint({
            avg_RMWD <- mean(my_data()$RMW)
            avg_CMAD <- mean(my_data()$CMA)
            
-           #FAIR RATE
+           # FAIR RATE
            
            Fair_Rate <- round(((rf + Coef_Mkt*(ExpectedRet-rf) + Coef_SMB*(avg_SMBD) + 
                          Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))), 2)
