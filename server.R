@@ -13,7 +13,7 @@ library(broom)
 
   
   function(input, output) {
-   # NONReactive
+    # NONReactive
     url <- paste("https://longforecast.com/sp-500-index-forecast-2017-2018-2019")
     webpage <- readLines(url)
     html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
@@ -27,18 +27,15 @@ library(broom)
     
     tab$Total. <- str_replace_all(tab$Total., fixed("%"), "")
     ExpectedRet <- as.numeric(tab["Total."])
-   # NONReactive
     
-   # NONReactive_2
+    # NONReactive 2
     rf <- getQuote("^IRX", what=yahooQF("Last Trade (Price Only)"))
     rf <- rf %>%
       select(Last)
     
     rf <- as.numeric(rf["Last"])/100
-   # NONReactive_2
  
-    
-    
+    # EARNINGSREACTIVE
     output$earningEstimates <- renderTable({
       url <- paste0("https://finance.yahoo.com/quote/", input$ticker, "/analysis?p=", input$ticker)
       webpage <- readLines(url)
@@ -47,31 +44,22 @@ library(broom)
       
       readHTMLTable(tableNodes[[1]])
     })
-   # EARNINGSREACTIVE
-  
-    
-    #GROWTHREACTIVE
-    
+   
+    # GROWTHREACTIVE 
     output$growthEst <- renderTable({
       url <- paste0("https://finance.yahoo.com/quote/", input$ticker, "/analysis?p=", input$ticker)
       webpage <- readLines(url)
       html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
       tableNodes <- getNodeSet(html, "//table")
-      
       readHTMLTable(tableNodes[[6]])
     })
-    
-   # GROWTHREACTIVE
-
     
 my_data <- reactive({ 
     
    if (input$Frequency == "Daily" & input$Model == "5 factor model"){
-     
-     
+
      s <- "FB"
-       
-       
+
       # REACTIVECOEF
          stocks_1 <- input$ticker
          p <- ("d")
@@ -82,17 +70,16 @@ my_data <- reactive({
            html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
            tableNodes <- getNodeSet(html, "//table")
            
-            #ASSIGN TO STOCK NAMED DFS
+            # ASSIGN TO STOCK NAMED df_1
            assign(s, readHTMLTable(tableNodes[[1]])
            )
            df_1 <- get(s)
            df_1['stock'] <- s
-           assign(s, df_1)
-           
+           assign(s, df_1) 
          }
          
          
-          #COMBINE ALL STOCK DATA 
+         # COMBINE ALL STOCK DATA 
          stockdatalist_1 <- cbind(mget(stocks_1))
          stockdata_1 <- do.call(rbind, stockdatalist_1)
          # MOVE STOCK ID TO FIRST COLUMN
@@ -145,14 +132,13 @@ my_data <- reactive({
         html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
         tableNodes <- getNodeSet(html, "//table")
         
-         #ASSIGN TO STOCK NAMED DFS
+         # ASSIGN TO STOCK NAMED df_1
                  assign(s, readHTMLTable(tableNodes[[1]])
                  )
                  df_1 <- get(s)
                  df_1['stock'] <- s
                  assign(s, df_1)
       }
-        
                # COMBINE ALL STOCK DATA
                stockdatalist_1 <- cbind(mget(stocks_1))
                stockdata_1 <- do.call(rbind, stockdatalist_1)
@@ -173,9 +159,7 @@ my_data <- reactive({
                stockdata_2 <- head(stockdata_2,-1)
                stockdata_2 <- stockdata_2 %>%
                  select(Return,Date)
-        
-        
-        
+
                FamaMonthly <- read_csv("https://www.dropbox.com/s/4qvsgte162t3r19/F-F_Research_Data_5_Factors_2x3.CSV?dl=1", skip = 3)
         
                setnames(FamaMonthly, "X1", "Date")
@@ -187,10 +171,8 @@ my_data <- reactive({
                FamaMonthly$RF <- as.numeric(as.character(FamaMonthly$RF))
                FamaMonthly[, 2:ncol(FamaMonthly)] <- FamaMonthly[, 2:ncol(FamaMonthly)]/100
 
-
                stop_index <- min(which(is.na(FamaMonthly[,2]))) - 1
-               
-        
+
                FamaMonthly <- FamaMonthly[1:stop_index,]
         
                FamaMonthly %>%
@@ -212,9 +194,7 @@ my_data <- reactive({
 
       }else if(input$Frequency == "Daily" & input$Model == "3 factor model"){
 
-                      
-                          
-                          stocks_1 <- input$ticker
+                         stocks_1 <- input$ticker
                          p <- ("d")
                          for (s in stocks_1) {
                            url <- paste0("https://finance.yahoo.com/quote/", s, "/history?period1=1391932800&period2=1552118400&interval=1", p, "&filter=history&frequency=1", p)
@@ -223,21 +203,15 @@ my_data <- reactive({
                            html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
                            tableNodes <- getNodeSet(html, "//table")
                   
-                            #ASSIGN TO STOCK NAMED DFS
                            assign(s, readHTMLTable(tableNodes[[1]])
                            )
                            df_1 <- get(s)
                            df_1['stock'] <- s
                            assign(s, df_1)
                          }
-                         
-                  
-                          #This is where we calculate...
-                  
-                          #COMBINE ALL STOCK DATA
+                        
                          stockdatalist_1 <- cbind(mget(stocks_1))
                          stockdata_1 <- do.call(rbind, stockdatalist_1)
-                          #MOVE STOCK ID TO FIRST COLUMN
                          stockdata_1 <- stockdata_1[, c(ncol(stockdata_1), 1:ncol(stockdata_1)-1)]
                   
                          stockdata_2 <- stockdata_1 %>%
@@ -253,9 +227,7 @@ my_data <- reactive({
                            mutate(Return = (`Adj Close**`/lead(`Adj Close**`) - 1))
                          stockdata_2 <- head(stockdata_2,-1)
                          stockdata_2 <- stockdata_2 %>%
-                           select(Return,Date)
-                  
-                  
+                           select(Return, Date)
                   
                          Fama_3Factor_Daily <- read_csv("https://www.dropbox.com/s/b5n41wr77urgahj/F-F_Research_Data_Factors_daily.CSV?dl=1", skip = 3)
                   
@@ -270,8 +242,7 @@ my_data <- reactive({
                            mutate_at(vars(-Date), funs(./100))
                   
                          Fama_3Factor_Daily<- Fama_3Factor_Daily[seq(dim(Fama_3Factor_Daily)[1],1),]
-                  
-                  
+
                          Fama_3Factor_Daily$Date <- parse_date_time(Fama_3Factor_Daily$Date, order = "ymd", tz = "UTC")
                   
                          Fama_3Factor_Daily$Date <- format(as.Date(Fama_3Factor_Daily$Date, format = "%Y-%m-%d"), "%b %d, %Y")
@@ -282,11 +253,8 @@ my_data <- reactive({
                   
                          Fama_3Factor_Daily <- mutate_all(Fama_3Factor_Daily, function(x) as.numeric(as.character(x)))
                   
-                }else{
-                    
-                             # REACTIVECOEF
-                             
-                            stocks_1 <- input$ticker
+                }else{          
+                           stocks_1 <- input$ticker
                            p <- ("mo")
                            for (s in stocks_1) {
                              url <- paste0("https://finance.yahoo.com/quote/", s, "/history?period1=1391932800&period2=1552118400&interval=1", p, "&filter=history&frequency=1", p)
@@ -295,19 +263,16 @@ my_data <- reactive({
                              html <- htmlTreeParse(webpage, useInternalNodes = TRUE, asText = TRUE)
                              tableNodes <- getNodeSet(html, "//table")
                     
-                             # ASSIGN TO STOCK NAMED DFS
                              assign(s, readHTMLTable(tableNodes[[1]])
                              )
                              df_1 <- get(s)
-                    df_1['stock'] <- s
-                    assign(s, df_1)
-                           }
-                  
-                  
-                   #COMBINE ALL STOCK DATA
+                             df_1['stock'] <- s
+                             assign(s, df_1)
+                                            }
+                 
                   stockdatalist_1 <- cbind(mget(stocks_1))
                   stockdata_1 <- do.call(rbind, stockdatalist_1)
-                  # MOVE STOCK ID TO FIRST COLUMN
+
                   stockdata_1 <- stockdata_1[, c(ncol(stockdata_1), 1:ncol(stockdata_1)-1)]
                   
                   stockdata_2 <- stockdata_1 %>%
@@ -324,9 +289,7 @@ my_data <- reactive({
                   stockdata_2 <- head(stockdata_2,-1)
                   stockdata_2 <- stockdata_2 %>%
                     select(Return,Date)
-                  
-                  
-                  
+
                   Fama_3Factor_Monthly <- read_csv("https://www.dropbox.com/s/wo6aoyq3r1x1jr4/F-F_Research_Data_Factors.CSV?dl=1", skip = 3)
                   
                   setnames(Fama_3Factor_Monthly, "X1", "Date")
@@ -352,16 +315,13 @@ my_data <- reactive({
                   
                   Fama_3Factor_Monthly <- mutate_all(Fama_3Factor_Monthly, function(x) as.numeric(as.character(x)))
                   }
+}) 
 
-}) ### reactive my_data
-
-
-  
 coef <- reactive({    
   
   if(input$Model == "5 factor model"){
          lm(Return ~`Mkt-RF` + SMB + HML + RMW + CMA, data = my_data())
-  }else{
+  } else{
     lm(Return ~`Mkt-RF` + SMB + HML, data = my_data())
   }
 
@@ -372,12 +332,11 @@ output$Ttest <- renderTable({
          correctvcov <- vcovHC(coef(),"HC1")
          output <- round(coeftest(coef(), vcov = correctvcov),4)
          map_df(list(output), tidy)
-       #REACTIVETTEST
 })
 
 output$Rates <- renderPrint({
        
-      # REACTIVECOEF
+       # REACTIVECOEF
        #Coef_Mkt <- summary(coef())$coefficients[2, 1]
        #Coef_SMB <- summary(coef())$coefficients[3, 1]
        #Coef_HML <- summary(coef())$coefficients[4, 1]
@@ -387,19 +346,20 @@ output$Rates <- renderPrint({
          Coef_Mkt <- summary(coef())$coefficients[2, 1]
          Coef_SMB <- summary(coef())$coefficients[3, 1]
          Coef_HML <- summary(coef())$coefficients[4, 1]  
-       Coef_RMW <- summary(coef())$coefficients[5, 1]
-       Coef_CMA <- summary(coef())$coefficients[6, 1]
+         Coef_RMW <- summary(coef())$coefficients[5, 1]
+         Coef_CMA <- summary(coef())$coefficients[6, 1]
        
-       avg_SMBD <- mean(my_data()$SMB)
-       avg_HMLD <- mean(my_data()$HML)
-       avg_RMWD <- mean(my_data()$RMW)
-       avg_CMAD <- mean(my_data()$CMA)
-       
-       #FAIR RATE
+         avg_SMBD <- mean(my_data()$SMB)
+         avg_HMLD <- mean(my_data()$HML)
+         avg_RMWD <- mean(my_data()$RMW)
+         avg_CMAD <- mean(my_data()$CMA)
+
+         # FAIR RATE
          
          Fair_Rate <- round(((rf + Coef_Mkt*(ExpectedRet-rf) + Coef_SMB*(avg_SMBD) + 
-                                Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))),2)
-         }else if (input$Frequency == "Monthly" & input$Model == "5 factor model"){
+                      Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))), 2)
+         
+         } else if (input$Frequency == "Monthly" & input$Model == "5 factor model"){
            
            Coef_Mkt <- summary(coef())$coefficients[2, 1]
            Coef_SMB <- summary(coef())$coefficients[3, 1]
@@ -415,10 +375,9 @@ output$Rates <- renderPrint({
            #FAIR RATE
            
            Fair_Rate <- round(((rf + Coef_Mkt*(ExpectedRet-rf) + Coef_SMB*(avg_SMBD) + 
-                                  Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))),2)
+                         Coef_HML*(avg_HMLD) + Coef_RMW*(avg_RMWD) + Coef_CMA*(avg_CMAD))), 2)
          
-       
-       }else{
+       } else{
          
          Coef_Mkt <- summary(coef())$coefficients[2, 1]
          Coef_SMB <- summary(coef())$coefficients[3, 1]
@@ -427,10 +386,10 @@ output$Rates <- renderPrint({
          avg_SMBD <- mean(my_data()$SMB)
          avg_HMLD <- mean(my_data()$HML)
          
-         #FAIR RATE
+         # FAIR RATE
          
          Fair_Rate <- round(((rf + Coef_Mkt*(ExpectedRet-rf) + Coef_SMB*(avg_SMBD) + 
-                                Coef_HML*(avg_HMLD))),2)
+                       Coef_HML*(avg_HMLD))), 2)
          
        }
          
