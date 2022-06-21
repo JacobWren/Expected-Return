@@ -7,7 +7,7 @@ fluidPage(theme = shinytheme("united"),
     color = c("#F7FBFF", "#2171B5"),
     gradient = "radial",
     direction = c("top", "left")
-  ),
+                                ),
   # Give the page a title
   titlePanel("Expected Rate of Return"),
   
@@ -26,11 +26,9 @@ fluidPage(theme = shinytheme("united"),
                   choices=c("5 factor model","3 factor model")),
                   
       hr(),
-                  
-      
+                   
       textInput("ticker", "Stock Ticker:", "FB")
       ),
-  
 
     mainPanel(
       tabsetPanel(
@@ -45,7 +43,6 @@ fluidPage(theme = shinytheme("united"),
         )
       )
     )
-    
   )
 )
 
